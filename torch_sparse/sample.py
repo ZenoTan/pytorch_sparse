@@ -44,7 +44,7 @@ def sample_adj(src: SparseTensor, subset: torch.Tensor, num_neighbors: int,
 
 
 def sample_adj_dynamic(src: DynamicSparseTensor, subset: torch.Tensor, num_neighbors: int,
-               replace: bool = False, realtime: bool = True) -> Tuple[SparseTensor, torch.Tensor]:
+                       replace: bool = False, realtime: bool = True) -> Tuple[SparseTensor, torch.Tensor]:
     if realtime:
         return src.storage.sample_realtime(subset, num_neighbors, replace)
     else:

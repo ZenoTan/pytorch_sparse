@@ -108,8 +108,8 @@ def get_extensions():
         )
         extensions += [extension]
 
-    dynamic_srcs = glob.glob(osp.join(extensions_dir, 'dynamic', '*.cpp'))
-    dynamic_includes = osp.join(extensions_dir, 'dynamic')
+    dynamic_srcs = glob.glob(osp.join(extensions_dir, 'dynamic', 'src', '*.cpp'))
+    dynamic_includes = osp.join(extensions_dir, 'dynamic', 'src')
     define_macros = [('WITH_PYTHON', None)]
     if sys.platform == 'win32':
         define_macros += [('torchsparse_EXPORTS', None)]

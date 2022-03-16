@@ -99,7 +99,7 @@ public:
           valptr = val_data + base;
         }
       }
-      ret.emplace_back(sample_row<V>(colptr, deg, valptr));
+      ret.push_back(sample_row<V>(colptr, deg, valptr, num_neighbors, replace));
     }
     return ret;
   }
@@ -159,7 +159,7 @@ public:
     auto out_rowptr_data = out_rowptr.data_ptr<int64_t>();
     out_rowptr_data[0] = 0;
 
-    std::vector<std::vector<std::tuple<int64_t, int64_t>>> cols; // col, e_id
+    std::vector<std::vector<std::tuple<int64_t, V>>> cols; // col, e_id
     std::vector<int64_t> n_ids;
     std::unordered_map<int64_t, int64_t> n_id_map;
 
@@ -189,9 +189,8 @@ public:
         if (mu->try_lock_shared()) {
           // TODO: lock guard
           auto res = blocks_[block_id].sample_adj_locked(
-              std::move(nodes), num_neighbors, replace);
+              nodes, num_neighbors, replace);
           mu->unlock();
-          m.erase(block_id);
           for (int i = 0; i < nodes.size(); i++) {
             auto node = get_global(nodes[i], block_id);
             auto &[neighbors, vals] = res[i];
@@ -206,6 +205,7 @@ public:
               cols[idxs[i]].push_back({n_id_map[c], v});
             }
           }
+          m.erase(block_id);
           break;
         }
       }
@@ -228,7 +228,7 @@ public:
       } else {
         out_val = torch::empty(E, idx.options().dtype(torch::kInt32));
       }
-      out_val_data = out_val->data_ptr<int64_t>();
+      out_val_data = out_val->data_ptr<V>();
     }
 
     i = 0;
@@ -240,7 +240,7 @@ public:
       for (const auto &value : col_vec) {
         out_col_data[i] = std::get<0>(value);
         if (has_val_) {
-          (*out_val_data)[i] = std::get<1>(value);
+          out_val_data[i] = std::get<1>(value);
         }
         i += 1;
       }

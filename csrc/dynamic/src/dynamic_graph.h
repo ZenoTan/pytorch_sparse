@@ -9,6 +9,7 @@
 
 template <typename V> class DynamicRow {
 public:
+  DynamicRow() {}
   DynamicRow(int64_t node, torch::Tensor rowptr, torch::Tensor col,
              std::optional<torch::Tensor> val) {
     int64_t *rowptr_data =
@@ -59,17 +60,11 @@ template <typename V> class DynamicGraph {
 public:
   bool has_node(int64_t node) { return rows_.count(node); }
 
-  int64_t *colptr(int64_t node) {
-    return rows_[node].cols.data();
-  }
+  int64_t *colptr(int64_t node) { return rows_[node].cols.data(); }
 
-  size_t degree(int64_t node) {
-    return rows_[node].cols.size();
-  }
+  size_t degree(int64_t node) { return rows_[node].cols.size(); }
 
-  V *valptr(int64_t node) {
-    return rows_[node].vals->data();
-  }
+  V *valptr(int64_t node) { return rows_[node].vals->data(); }
 
   void update(DynamicLog<V> log, torch::Tensor rowptr, torch::Tensor col,
               std::optional<torch::Tensor> val) {
